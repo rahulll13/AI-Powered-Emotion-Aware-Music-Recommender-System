@@ -1,8 +1,11 @@
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import mysql.connector
+from mysql.connector import pooling
 from deepface import DeepFace # type: ignore
-from flask_mail import Mail, Message
+from flask_mail import Mail, Message # type: ignore
+from googleapiclient.discovery import build
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 import cv2 # type: ignore
 import numpy as np
@@ -28,7 +31,34 @@ app.config['MAIL_PASSWORD'] = 'wslo gpxi huxl xupk'  # Replace with your email p
 app.config['MYSQL_USER'] = 'music_app_user' # The user you created
 app.config['MYSQL_PASSWORD'] = 'password' # The password you set
 app.config['MYSQL_DB'] = 'music_recommender'
+# ... (after all your app.config lines) ...
+
+# --- NEW: Create Connection Pool ---
+try:
+    db_config = {
+        'host': app.config['MYSQL_HOST'],
+        'user': app.config['MYSQL_USER'],
+        'password': app.config['MYSQL_PASSWORD'],
+        'database': app.config['MYSQL_DB']
+    }
+    
+    # Create a pool named 'my_pool' with 5 connections
+    cnx_pool = mysql.connector.pooling.MySQLConnectionPool(
+        pool_name="my_pool",
+        pool_size=5,
+        **db_config
+    )
+    print("Connection pool created successfully.")
+except mysql.connector.Error as err:
+    print(f"Error creating connection pool: {err}")
+    # If the pool fails, the app can't run
+    exit(1) 
+# --- END NEW POOL ---
 mail = Mail(app)
+
+os.environ["YOUTUBE_API_KEY"] = "AIzaSyAMYibuc5AXAgXlJmFgXJpp2Q7Wvoe_pFA"
+YOUTUBE_API_SERVICE_NAME = "youtube"
+YOUTUBE_API_VERSION = "v3"
 
 
 # Setup JWT (JSON Web Tokens)
@@ -42,18 +72,18 @@ s = URLSafeTimedSerializer(app.config['JWT_SECRET_KEY'])
 bcrypt = Bcrypt(app)
 
 # Function to get a database connection
+
+# --- MODIFIED: Get a connection from the pool ---
+
 def get_db_connection():
     try:
-        conn = mysql.connector.connect(
-            host=app.config['MYSQL_HOST'],
-            user=app.config['MYSQL_USER'],
-            password=app.config['MYSQL_PASSWORD'],
-            database=app.config['MYSQL_DB']
-        )
+        # Get a connection from the pool
+        conn = cnx_pool.get_connection()
         return conn
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        print(f"Error getting connection from pool: {err}")
         return None
+    
 # --- END NEW CONFIGURATION ---
 
 
@@ -66,6 +96,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # --- API Endpoint for Emotion Detection (from before) ---
 @app.route('/api/detect-emotion', methods=['POST'])
+@jwt_required()
 def detect_emotion():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -75,24 +106,127 @@ def detect_emotion():
         return jsonify({"error": "No selected file"}), 400
 
     if file:
-        # ... (rest of your emotion detection code) ...
+        # (rest of your emotion detection code) ...
         # (This code is unchanged)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filepath)
         try:
-            analysis = DeepFace.analyze(img_path=filepath, actions=['emotion'], enforce_detection=True)
-            if isinstance(analysis, list):
-                dominant_emotion = analysis[0]['dominant_emotion']
-            else:
-                dominant_emotion = analysis['dominant_emotion']
+            # Run DeepFace analysis
+            # enforce_detection=True ensures this returns a list of faces
+            analysis_list = DeepFace.analyze(
+                img_path=filepath, 
+                actions=['emotion'],
+                enforce_detection=True
+            )
+            # --- THIS IS THE CHANGE ---
+            # We'll just take the first face found
+            first_face = analysis_list[0]
+            dominant_emotion = first_face['dominant_emotion']
+            region = first_face['region'] # This is a dict like {'x': 10, 'y': 20, 'w': 100, 'h': 100}
+
+            # Clean up the temporary file
             os.remove(filepath)
-            return jsonify({"emotion": dominant_emotion})
+            
+            return jsonify({
+                "emotion": dominant_emotion,
+                "region": region 
+            })
         except ValueError as e:
             os.remove(filepath)
             return jsonify({"error": "No face detected in the image"}), 400
         except Exception as e:
             os.remove(filepath)
             return jsonify({"error": str(e)}), 500
+        
+# --- NEW API ENDPOINT: Music Recommendations (Upgraded) ---
+@app.route('/api/recommendations', methods=['POST'])
+@jwt_required()
+def get_recommendations():
+    data = request.get_json()
+    emotion = data.get('emotion')
+    language = data.get('language', 'english') # Default to 'english' if not provided
+
+    if not emotion:
+        return jsonify({"error": "Emotion is required"}), 400
+
+    # --- NEW: Multi-language Search Map ---
+    # This is our new upgraded logic
+    search_query_map = {
+        'happy': {
+            'english': 'upbeat pop songs',
+            'hindi': 'latest hindi party songs 2025',
+            'any': 'upbeat international music'
+        },
+        'sad': {
+            'english': 'ambient music for relaxing',
+            'hindi': 'sad hindi songs playlist',
+            'any': 'relaxing instrumental music'
+        },
+        'angry': {
+            'english': 'heavy metal mix',
+            'hindi': 'angry hindi rap',
+            'any': 'intense workout music'
+        },
+        'surprise': {
+            'english': 'epic orchestral music',
+            'hindi': 'surprising plot twist songs hindi',
+            'any': 'epic cinematic music'
+        },
+        'fear': {
+            'english': 'calming relaxing music',
+            'hindi': 'calming meditation music hindi',
+            'any': 'soothing sounds for sleep'
+        },
+        'neutral': {
+            'english': 'lo-fi beats to relax/study to',
+            'hindi': 'hindi lo-fi songs',
+            'any': 'chillhop music'
+        },
+        'disgust': {
+            'english': 'calming instrumental music',
+            'hindi': 'calm hindi instrumental',
+            'any': 'relaxing piano music'
+        }
+    }
+
+    # Get the search query from our new map
+    # 1. Get the dictionary for the detected emotion (or 'neutral' if not found)
+    emotion_map = search_query_map.get(emotion.lower(), search_query_map['neutral'])
+    # 2. Get the specific search query for the language (or 'any' if not found)
+    search_query = emotion_map.get(language, emotion_map['any'])
+
+    try:
+        api_key = os.environ.get("YOUTUBE_API_KEY")
+        if not api_key:
+            return jsonify({"error": "API key not configured"}), 500
+
+        youtube = build(
+            YOUTUBE_API_SERVICE_NAME,
+            YOUTUBE_API_VERSION,
+            developerKey=api_key
+        )
+
+        search_response = youtube.search().list(
+            q=search_query,
+            part="snippet",
+            maxResults=10,
+            type="video",
+            videoEmbeddable="true"
+        ).execute()
+
+        recommendations = []
+        for item in search_response.get("items", []):
+            recommendations.append({
+                "video_id": item["id"]["videoId"],
+                "title": item["snippet"]["title"],
+                "channel_title": item["snippet"]["channelTitle"],
+                "thumbnail_url": item["snippet"]["thumbnails"]["default"]["url"]
+            })
+
+        return jsonify(recommendations)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # --- NEW API ENDPOINT: User Signup ---
 @app.route('/api/signup', methods=['POST'])
@@ -131,7 +265,6 @@ def signup():
     finally:
         cursor.close()
         conn.close()
-        
 
 # --- NEW API ENDPOINT: Forgot Password ---
 @app.route('/api/forgot-password', methods=['POST'])
@@ -216,6 +349,76 @@ def reset_password():
         return jsonify({"error": "Invalid token"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+# --- NEW API ENDPOINT: Add a Favorite Song ---
+@app.route('/api/favorites', methods=['POST'])
+@jwt_required() # Secure this endpoint
+def add_favorite():
+    # Get the user ID from the JWT token
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+
+    # Get song details from the request body
+    video_id = data.get('video_id')
+    song_title = data.get('title')
+    channel_title = data.get('channel_title')
+
+    if not video_id:
+        return jsonify({"error": "video_id is required"}), 400
+
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+    
+    cursor = conn.cursor()
+
+    try:
+        # Check if the song is already a favorite
+        cursor.execute("SELECT * FROM UserFavorites WHERE user_id = %s AND video_id = %s",
+                       (current_user_id, video_id))
+        if cursor.fetchone():
+            return jsonify({"error": "Already in favorites"}), 409 # 409 = Conflict
+
+        # Add the new favorite song
+        cursor.execute(
+            "INSERT INTO UserFavorites (user_id, video_id, song_title, channel_title) VALUES (%s, %s, %s, %s)",
+            (current_user_id, video_id, song_title, channel_title)
+        )
+        conn.commit()
+        return jsonify({"message": "Favorite added"}), 201
+    
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+# --- NEW API ENDPOINT: Get User's Favorite Songs ---
+@app.route('/api/favorites', methods=['GET'])
+@jwt_required() # Secure this endpoint
+def get_favorites():
+    # Get the user ID from the JWT token
+    current_user_id = get_jwt_identity()
+
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+    
+    # dictionary=True returns results as {column_name: value}
+    cursor = conn.cursor(dictionary=True) 
+
+    try:
+        cursor.execute("SELECT video_id, song_title, channel_title FROM UserFavorites WHERE user_id = %s",
+                       (current_user_id,))
+        favorites = cursor.fetchall()
+        return jsonify(favorites)
+    
+    except mysql.connector.Error as err:
+        return jsonify({"error": str(err)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 # --- NEW API ENDPOINT: User Login ---
 @app.route('/api/login', methods=['POST'])
@@ -240,7 +443,7 @@ def login():
         # Check if user exists and password is correct
         if user and bcrypt.check_password_hash(user['password_hash'], password):
             # Create a JWT token for the user
-            access_token = create_access_token(identity=user['user_id'])
+            access_token = create_access_token(identity=str(user['user_id']))
             return jsonify(access_token=access_token)
         else:
             return jsonify({"error": "Invalid credentials"}), 401 # 401 = Unauthorized
