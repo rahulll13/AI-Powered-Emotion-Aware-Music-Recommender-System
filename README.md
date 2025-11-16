@@ -1,7 +1,8 @@
-# AI-Powered-Emotion-Aware-Music-Recommender-System
-# 🚀AI-Powered-Application-For-Early-Heart-Disease-Risk-Prediction
+# 🚀AI-Powered-Emotion-Aware-Music-Recommender-System
 
-AI Powered Application used to Predict early risk of heart disease using an explainable AI model along with a simple web interface. This project, developed as part of the Infosys Springboard Internship which moves beyond a simple prediction by using Explainable AI (XAI) to show users why a prediction was made, and provides personalized health recommendations based on their key risk factors. This repository contains code for data processing, model training, inference, and a small web app to let users enter health parameters and receive a risk estimate.
+- EmotionMusic is a full-stack, intelligent web application designed to bridge the gap between human emotion and music discovery. Moving beyond traditional genre- or history-based recommendations, this application uses real-time facial emotion recognition to analyze a user's current mood and generate a tailored playlist of music to match it.
+
+- The project is a complete, end-to-end system featuring a modern, animated frontend built in React, a powerful backend API built in Flask (Python), and a secure, cloud-hosted MySQL database. It handles everything from user authentication and real-time AI analysis to fetching music from the YouTube API and saving user "favorites."
 
 ## 🌐Table of Contents
 - Working demo
