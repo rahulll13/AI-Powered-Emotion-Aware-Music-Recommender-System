@@ -1,1 +1,7 @@
-ÿþ
+# Ignore local environment files
+.env
+.env.local
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
