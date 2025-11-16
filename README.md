@@ -67,6 +67,7 @@
   
 [![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/landing%20page.png)](https://youtu.be/edyFVjffw9g)
 
+
 ## 🪄Overview 
 
 
@@ -75,6 +76,7 @@
 - Moving beyond traditional genre- or history-based recommendations, this application uses real-time facial emotion recognition to analyze a user's current mood and generate a tailored playlist of music to match it.
 
 - It's built on a modern, decoupled architecture: a React frontend (for the user interface) and a Flask (Python) backend (for handling AI, user data, and external APIs).
+
 
 ## ✨Features
 
@@ -105,6 +107,7 @@
 1. Start the app (instructions below).
 2. Open the web UI at http://localhost:5000 (or the port configured).
 3. Enter patient features and get a risk score with a short explanation.
+   
 
 ## 🛠️ Tech Stack & Architecture
 
@@ -361,73 +364,92 @@ npm start
 
 ### 3. How It Works:
 
+
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/How%20does%20it%20works.png)
 
 
 ### 3. Why choose us?:
+
 
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Why%20choose%20.png)
 
 
 ### 4. Developer:
 
+
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Developer.png)
 
 
 ### 5. Create Account 
+
 
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/signup%20page.png)
 
 
 ### 6. Login Page
 
+
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/sign%20In%20page.png)
 
 
 ### 7. Forget Password
+
 
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Reset%20Password%20Working.png)
 
 
 ### 8. Reset password from the Gmail
 
+
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Password%20Reset%20Request.png)
 
 
 ### 9. Reset Password
+
 
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Reset%20Password.png)
 
 
 ### 10. Dashboard Page
 
+
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/dashboard.png)
 
 
 ### 11. Live Detection Result 
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/result%20page.png)
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Result%20using%20Live%20Detection.png)
 
 
 ### 12. Music Recommendation of live detection in English 
+
 
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Music%20Recommendation%20based%20on%20live%20detection%20in%20English.png)
 
 
 ### 12. Music Recommendation of live detection in Hindi
 
+
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Music%20Recommendation%20based%20on%20live%20detection%20in%20Hindi.png)
 
 
-### 9. Documents page
-
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/documents.png)
+### 13. Image Upload Result
 
 
-### 10. Profile page
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Result%20using%20Upload.png)
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/profile.png)
 
+### 14. Music Recommendation Based on Upload
+
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Music%20recommendation%20based%20on%20upload%20of%20image.png)
+
+
+### 14. List Of Favourite songs
+
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/List%20Of%20Favorite%20songs.png)
 
 
 ## 🔥Usage
