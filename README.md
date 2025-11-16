@@ -1,182 +1,422 @@
 # 🚀AI-Powered-Emotion-Aware-Music-Recommender-System
 
-- EmotionMusic is a full-stack, intelligent web application designed to bridge the gap between human emotion and music discovery. Moving beyond traditional genre- or history-based recommendations, this application uses real-time facial emotion recognition to analyze a user's current mood and generate a tailored playlist of music to match it.
 
-- The project is a complete, end-to-end system featuring a modern, animated frontend built in React, a powerful backend API built in Flask (Python), and a secure, cloud-hosted MySQL database. It handles everything from user authentication and real-time AI analysis to fetching music from the YouTube API and saving user "favorites."
+- EmotionMusic is a full-stack, intelligent web application designed to bridge the gap between human emotion and music discovery.
+  
+-  Moving beyond traditional genre- or history-based recommendations, this application uses real-time facial emotion recognition to analyze a user's current mood and generate a tailored playlist of music to match it.
+
+- The project is a complete, end-to-end system featuring a modern, animated frontend built in React, a powerful backend API built in Flask (Python), and a secure, cloud-hosted MySQL database.
+  
+- It handles everything from user authentication and real-time AI analysis to fetching music from the YouTube API and saving user "favorites."
+  
 
 ## 🌐Table of Contents
+
+
 - Working demo
+  
 - Overview
+  
 - Features
+
 - Quick Demo
+  
 - Getting Started
+  
   - Prerequisites
+    
   - Installation
+    
   - Running locally
-- Screenshots 
+    
+- Screenshots
+   
 - Usage
+  
   - Web UI
+    
   - API
+    
 - Data & Model
-  - Dataset (example)
+  
+  - Dataset (example)'
+    
   - Training
+    
   - Inference
+    
 - Configuration
+  
 - Tests
+  
 - Contributing
+  
 - License
+  
 - Contact
+  
 - Acknowledgements
+  
 
 ## 🎮Working demo
+
+
 - A brief video walkthrough of the application, demonstrating user registration, the Detection process, and the Music Recommendations.
   
 - Click the thumbnail below to watch a full video walkthrough of the application.
   
 [![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/landing%20page.png)](https://youtu.be/edyFVjffw9g)
 
-## 🪄Overview
-This project aims to provide an accessible, auditable pipeline for early heart disease risk prediction. It uses classical ML (and/or deep learning) with standard health features to produce risk scores and basic explanations so clinicians and users can understand model outputs.
+## 🪄Overview 
+
+
+- EmotionMusic is a full-stack, intelligent web application designed to bridge the gap between human emotion and music discovery.
+   
+- Moving beyond traditional genre- or history-based recommendations, this application uses real-time facial emotion recognition to analyze a user's current mood and generate a tailored playlist of music to match it.
+
+- It's built on a modern, decoupled architecture: a React frontend (for the user interface) and a Flask (Python) backend (for handling AI, user data, and external APIs).
 
 ## ✨Features
-- High-Accuracy Prediction: Utilizes a RandomForestClassifier with 98.5% accuracy on the validation set to predict heart disease risk based on 13 clinical features.
 
-- Explainable AI (XAI): Integrates the SHAP library to provide clear, user-friendly explanations for each prediction, building trust by showing which factors (e.g., cholesterol, age) contributed most to the risk score.
 
-- Personalized Recommendations: A dynamic recommendation engine that parses the XAI results and generates actionable health advice tailored to the user's specific risk factors.
+- Dynamic Landing Page: A fully animated, multi-section homepage with CSS-animated background and clear navigation.
 
-- Secure User Authentication: Full user registration and login system with secure, stateless authentication using JSON Web Tokens (JWT).
+- Full User Authentication: Secure signup, login, and password hashing (bcrypt).
 
-- Document Management with OCR: Users can upload medical documents (images or PDFs), with Tesseract OCR automatically extracting text for their records.
+- Protected Routes: Dashboard and Favorites pages are accessible only to logged-in users using JSON Web Tokens (JWT).
 
-- PDF Report Generation: Users can download a PDF summary of their prediction results for their records or to share with a healthcare provider.
+- Full Password Reset: A complete "Forgot Password" flow that sends a secure, timed email link to the user.
 
-- Role-Based Access: Includes a "Doctor" role with a separate dashboard to view a list of registered patients.
+- Dual-Mode Emotion Detection:
+
+- Live Webcam: Start your camera and get an instant emotion analysis from a snapshot.
+
+- Image Upload: Upload a photo to detect emotion.
+
+- AI Analysis: Uses deepface (TensorFlow) to draw a bounding box on the detected face and classify the emotion (Happy, Sad, Neutral, etc.).
+
+- Personalized Recommendations: Fetches music from the YouTube API based on both the detected emotion and a user-selected language preference (English, Hindi, or Any).
+
+- "My Favorites" System: Users can "like" songs, which are saved to their personal account and accessible on a dedicated "My Favorites" page.
+
 
 ## Quick Demo
+
 1. Start the app (instructions below).
 2. Open the web UI at http://localhost:5000 (or the port configured).
 3. Enter patient features and get a risk score with a short explanation.
 
 ## 🛠️ Tech Stack & Architecture
+
+
 ### Backend
-- Framework: Python 3.11, Flask, Flask-RESTful
-- Authentication: Flask-JWT-Extended (for stateless JWTs)
-- Database: Flask-SQLAlchemy, SQLite
-- File Handling: Werkzeug secure_filename, Pillow (PIL) for image processing
-- Services: Flask-Mail (for password resets), Tesseract (for OCR)
+
+
+- Framework: Python 3.11, Flask, Gunicorn (for production)
+
+- Authentication: Flask-JWT-Extended (for stateless JWTs), Flask-Bcrypt (for password hashing)
+
+- Database: MySQL with mysql-connector-python (using Connection Pooling)
+
+- Services: Flask-Mail (for password resets), google-api-python-client (for YouTube Data API)
+
+- File Handling: Flask's built-in request.files and os module for temporary image storage.
+  
 
 ### AI / Data Science
-- Model: Scikit-learn (RandomForestClassifier, StandardScaler, Pipeline)
-- Explainability (XAI): SHAP (SHapley Additive exPlanations)
-- Data Handling: Pandas, NumPy
+
+
+- Core Library: deepface (for pre-trained emotion detection models)
+
+- ML Backend: TensorFlow (tensorflow-cpu for deployment)
+
+- Image/Video Handling: OpenCV (opencv-python-headless)
+
+- Data Handling: NumPy
+
 
 ### Frontend
-- Core: HTML5, CSS3, JavaScript (ES6+)
-- Framework: Bootstrap 5
-- Visualization: Gauge.js (for the risk chart)
-- State Management: sessionStorage is used to pass the final JSON prediction from the prediction page to the results page.
 
+
+- Core: React 19 (JavaScript, JSX), HTML5, CSS3
+
+- Styling: Tailwind CSS (for utility-first design)
+
+- Animation: Framer Motion (for all UI and page animations)
+
+- Routing: React Router v7 (for page navigation and protected routes)
+
+- State Management: React Context API (for global auth state), localStorage (for token persistence)
+
+- API Client: Axios (for all HTTP requests)
+
+- Icons: Lucide-React
+  
+
+### Deployment & Infrastructure
+
+
+- Backend API: Render (as a Web Service)
+
+- Database: Railway (for the hosted MySQL database)
+
+- Frontend: Netlify (for static site hosting)
+
+- Version Control: GitHub
+  
+  
 ## Getting Started
 
+
+- Follow these instructions to get a copy of the project up and running on your local machine for development and testing.
+
+
 ### Prerequisites
-- Python 3.8+
-- pip
-- Tesseract OCR
-- Installation instructions can be found on the official Tesseract GitHub. You must update the path in config.py.
-- Recommended: virtualenv or venv
 
-### ⚙️Local Installation and setup
-Clone the repo:
+
+- we will need the following tools installed on your system:
+
+- Node.js (which includes npm)
+
+- Python 3.11+
+
+- A pip package manager
+
+- Git & GitHub
+  
+
+## ⚙️Local Installation and setup
+
+
+### 1. Clone the repo:
+
+
 ```bash
-git clone https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction-Application.git
-cd AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction-Application
+git clone [https://github.com/your-username/emotion-music-recommender.git](https://github.com/your-username/emotion-music-recommender.git)
+cd emotion-music-recommender
 ```
 
-### 1. Create and activate a virtual environment:
+
+### 2. Set up the Backend (Python):
+
+
 ```bash
-# for windows
+cd backend
 python -m venv venv
-.\venv\Scripts\Activate.ps1
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
-### 2. Configure environment variables: Create a .env file in the root directory. Use the .env.example as a template and add your credentials.
-```bash
-# .env file
-SECRET_KEY='a-very-secret-key'
 
-# For Gmail, you may need an App Password
-MAIL_USERNAME='your-email@gmail.com'
-MAIL_PASSWORD='your-email-password'
-```
-### 3. Initialize the database:
-```bash
-flask db init
-flask db migrate -m "Initial migration."
-flask db upgrade
-```
-### 4. Train the ML Model: This is a critical step. Run the training script to generate the serialized model and explainer files.
-```bash
-python train_model.py
-```
-### 5. Running the application
-Use the provided utility script to launch both the backend and frontend servers concurrently.:
-```bash
-python start_servers.py
-```
-Then open http://localhost:5000 in your browser.
 
+### 3. Set up the Frontend (React):
+
+ 
+```bash
+cd ../frontend
+npm install
+```
+
+
+### 4. Initialize the database:
+
+
+- Start your local MySQL server.
+
+- Log in to your MySQL client (e.g., MySQL Command Line Client or MySQL Workbench).
+
+- Run the following SQL commands one by one:
+  
+
+```bash
+-- 1. Create the database
+CREATE DATABASE music_recommender;
+
+-- 2. Create the user
+CREATE USER 'music_app_user'@'localhost' IDENTIFIED BY 'password';
+
+-- 3. Grant privileges
+GRANT ALL PRIVILEGES ON music_recommender.* TO 'music_app_user'@'localhost';
+FLUSH PRIVILEGES;
+
+-- 4. Select the database
+USE music_recommender;
+
+-- 5. Create the Users table
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Create the EmotionLogs table
+CREATE TABLE EmotionLogs (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    detected_emotion VARCHAR(20) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+-- 7. Create the UserFavorites table
+CREATE TABLE UserFavorites (
+    favorite_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    video_id VARCHAR(50) NOT NULL,
+    song_title VARCHAR(255),
+    channel_title VARCHAR(100),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+```
+
+
+### 5. Configure Environment Variables
+
+
+### 1.Backend:
+
+
+- In the backend folder, create a new file named .env.
+  
+- This is where you'll put your secret keys.
+  
+- Copy and paste this, adding your real values:
+  
+  
+```bash
+MYSQL_HOST=localhost
+MYSQL_USER=music_app_user
+MYSQL_PASSWORD=password
+MYSQL_DB=music_recommender
+JWT_SECRET_KEY=my-super-secret-key-12345
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-16-character-google-app-password
+YOUTUBE_API_KEY=your-youtube-api-key
+FRONTEND_URL=http://localhost:3000
+```
+
+
+### 2.frontend: 
+
+
+- Open frontend/src/api.js.
+
+- Make sure the API_URL is set to your local backend:
+  
+```bash
+  // For local testing:
+const API_URL = 'http://localhost:5000/api';
+```
+
+
+### 6. Running the application
+
+
+- we must run the backend and frontend in two separate terminals.
+  
+
+### Terminal 1: Start the Backend (Flask)
+
+
+```bash
+cd backend
+.\venv\Scripts\activate
+python app.py
+```
+
+
+- Your backend will now be running at http://localhost:5000
+  
+
+### Terminal 2: Start the frontend (react)
+
+
+```bash
+cd frontend
+npm start
+```
+
+
+### 7. Access the App
+
+
+- Then open http://localhost:3000 in your browser (not 5000)
+  
+  
 ## 📸Screenshots
+
 
 ### 1. Landing Page
 
-![AI Heart Health Assistant Demo](frontend/Screeenshots/Thumbnail.png)
+
+![AI Music Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/landing%20page.png)
 
 
 ### 2. Features 
 
-![AI Heart Health Assistant Demo](frontend/Screeenshots/Benifits.png)
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Features%20of%20app.png)
 
 
-### 3. Advantages
+### 3. How It Works:
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/why%20choose.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/How%20does%20it%20works.png)
 
 
-### 4. How It Works:
+### 3. Why choose us?:
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/how%20works.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Why%20choose%20.png)
+
+
+### 4. Developer:
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Developer.png)
 
 
 ### 5. Create Account 
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/create%20account.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/signup%20page.png)
 
 
 ### 6. Login Page
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/login%20page.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/sign%20In%20page.png)
+
 
 ### 7. Forget Password
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/Forget%20Password.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Reset%20Password%20Working.png)
+
 
 ### 8. Reset password from the Gmail
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/Gmail%20Password%20reset%20token.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Password%20Reset%20Request.png)
+
 
 ### 9. Reset Password
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/Reset%20password.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Reset%20Password.png)
 
 
-### 7. Prediction Page
+### 10. Dashboard Page
 
-![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/prediction%20page.png)
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/dashboard.png)
 
 
-### 8. Result page
+### 11. Live Detection Result 
 
 ![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Application-for-Early-Heart-Disease-Risk-Prediction/blob/master/frontend/Screeenshots/result%20page.png)
+
+
+### 12. Music Recommendation of live detection in English 
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Music%20Recommendation%20based%20on%20live%20detection%20in%20English.png)
+
+
+### 12. Music Recommendation of live detection in Hindi
+
+![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/Music%20Recommendation%20based%20on%20live%20detection%20in%20Hindi.png)
 
 
 ### 9. Documents page
