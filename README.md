@@ -19,8 +19,6 @@
   
 - Features
 
-- Quick Demo
-  
 - Getting Started
   
   - Prerequisites
@@ -101,13 +99,6 @@
 
 - "My Favorites" System: Users can "like" songs, which are saved to their personal account and accessible on a dedicated "My Favorites" page.
 
-
-## Quick Demo
-
-1. Start the app (instructions below).
-2. Open the web UI at http://localhost:5000 (or the port configured).
-3. Enter patient features and get a risk score with a short explanation.
-   
 
 ## 🛠️ Tech Stack & Architecture
 
