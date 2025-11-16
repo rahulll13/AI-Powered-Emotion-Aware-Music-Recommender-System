@@ -1,16 +1,19 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import LandingPage from "./components/LandingPage"; // <-- NEW: Import LandingPage
 import AuthPage from "./components/AuthPage";
 import DashboardPage from "./components/DashboardPage";
-import FavoritesPage from "./components/FavoritesPage"; // <-- NEW: Import FavoritesPage
+import FavoritesPage from "./components/FavoritesPage";
 import ResetPasswordPage from "./components/ResetPasswordPage";
 
 // --- (PrivateRoute and PublicRoute are unchanged) ---
+// PrivateRoute: If you're logged in, show the page. If not, go to /login.
 function PrivateRoute({ children }) {
   const { token } = useAuth();
-  return token ? children : <Navigate to="/" replace />;
+  return token ? children : <Navigate to="/login" replace />;
 }
 
+// PublicRoute: If you're logged out, show the page. If logged in, go to /dashboard.
 function PublicRoute({ children }) {
   const { token } = useAuth();
   return !token ? children : <Navigate to="/dashboard" replace />;
@@ -20,16 +23,20 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* --- UPDATED: / is now the public landing page --- */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* --- NEW: /login is the new public route for logging in --- */}
         <Route
-          path="/"
+          path="/login"
           element={
             <PublicRoute>
               <AuthPage />
             </PublicRoute>
           }
         />
-        {/* --- 2. ADD THIS NEW ROUTE --- */}
-        {/* This is a public route for the reset password page */}
+
+        {/* --- (Reset password route is unchanged) --- */}
         <Route
           path="/reset-password/:token"
           element={
@@ -39,6 +46,7 @@ function App() {
           }
         />
 
+        {/* --- (Dashboard and Favorites routes are unchanged) --- */}
         <Route
           path="/dashboard"
           element={
@@ -47,8 +55,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* --- NEW: FAVORITES ROUTE --- */}
         <Route
           path="/favorites"
           element={

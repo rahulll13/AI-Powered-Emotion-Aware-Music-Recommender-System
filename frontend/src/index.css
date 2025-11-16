@@ -1,3 +1,83 @@
+/*
+  This is the complete, updated file.
+*/
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+.finisher-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #111827; 
+  z-index: 0;
+}
+
+.content-on-top {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- UPDATED: Music Note Animation --- */
+@keyframes floating-notes {
+  0% {
+    /* Start 150px below the bottom edge */
+    bottom: -150px;
+    opacity: 4;
+  }
+  10% {
+    /* Fade in */
+    opacity: 0.15;
+  }
+  90% {
+    /* Stay visible for most of the journey */
+    opacity: 0.15;
+  }
+  100% {
+    /* End at the very top edge */
+    bottom: 100%; 
+    opacity: 0;
+  }
+}
+
+.music-notes-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; 
+  overflow: hidden; 
+  pointer-events: none;
+  background-color: #111827;
+}
+
+.music-notes-bg .note {
+  position: absolute;
+  /* 'bottom' is now controlled by the animation */
+  font-size: 8rem;
+  
+  /* --- CHANGED: Better contrast color --- */
+  color: rgba(255, 255, 255, 2); /* Faint white */
+  
+  animation-name: floating-notes;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+/* (Variations are unchanged) */
+.music-notes-bg .note:nth-child(1) { left: 10%; animation-duration: 15s; animation-delay: -2s; font-size: 2rem; }
+.music-notes-bg .note:nth-child(2) { left: 20%; animation-duration: 10s; animation-delay: -5s; font-size: 4rem; }
+.music-notes-bg .note:nth-child(3) { left: 35%; animation-duration: 12s; animation-delay: 0s; }
+.music-notes-bg .note:nth-child(4) { left: 50%; animation-duration: 18s; animation-delay: -7s; font-size: 2.5rem; }
+.music-notes-bg .note:nth-child(5) { left: 65%; animation-duration: 9s; animation-delay: -1s; font-size: 3.5rem; }
+.music-notes-bg .note:nth-child(6) { left: 80%; animation-duration: 14s; animation-delay: -3s; }
+.music-notes-bg .note:nth-child(7) { left: 90%; animation-duration: 11s; animation-delay: -6s; font-size: 2rem; }
+.music-notes-bg .note:nth-child(8) { left: 40%; animation-duration: 13s; animation-delay: -4s; font-size: 3rem; }
+.music-notes-bg .note:nth-child(9) { left: 75%; animation-duration: 16s; animation-delay: -8s; font-size: 2.2rem; }

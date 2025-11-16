@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom'; // <-- NEW: Import Link for navigation
+import { Link } from 'react-router-dom';
 
 // --- (UploadIcon component is unchanged) ---
 const UploadIcon = () => (
@@ -12,9 +12,7 @@ const UploadIcon = () => (
   </svg>
 );
 
-// --- NEW: Heart Icon component ---
-// --- UPDATED: Heart Icon component ---
-// It now accepts an isFavorite prop to change its style
+// --- (HeartIcon component is unchanged) ---
 const HeartIcon = ({ isFavorite }) => (
   <svg 
     className={`w-6 h-6 transition-colors ${isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`} 
@@ -27,28 +25,46 @@ const HeartIcon = ({ isFavorite }) => (
   </svg>
 );
 
-// --- NEW: Animation Variants for the Dashboard ---
+// --- Animation Variants ---
 
-// This will be the parent container for our cards
+// This is for the main page container
 const dashboardContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2 // Each card will animate 0.2s after the previous
+      staggerChildren: 0.2 // Staggers its direct children
     }
   }
 };
 
-// This will be the animation for each card
+// This is for individual cards
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 }, // Start invisible and 30px down
+  hidden: { opacity: 0, y: 30 },
   visible: { 
     opacity: 1, 
-    y: 0,         // Animate to visible and 0px (original position)
+    y: 0,
     transition: { type: 'spring', stiffness: 100, damping: 15 } 
   }, 
 };
+
+// --- FIX: NEW VARIANT for the GRID ---
+// This variant will animate the grid in AS A CARD
+// and THEN stagger its own children (the two cards inside it)
+const gridContainerVariants = {
+  hidden: { opacity: 0, y: 30 }, // Animate itself in (like a card)
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring', 
+      stiffness: 100, 
+      damping: 15,
+      staggerChildren: 0.2 // THEN stagger its children
+    }
+  }
+};
+
 
 export default function DashboardPage() {
   const { logout } = useAuth();
@@ -69,23 +85,19 @@ export default function DashboardPage() {
   const [recommendations, setRecommendations] = useState([]);
   const [isMusicLoading, setIsMusicLoading] = useState(false);
   const [language, setLanguage] = useState('english');
-  
-  // --- NEW: Add a state for success messages (e.g., "Favorite Added!") ---
   const [successMessage, setSuccessMessage] = useState('');
-
-  // --- NEW: State to track favorite song IDs ---
-  // A Set is used for fast lookups (e.g., favoriteIds.has(song.id))
   const [favoriteIds, setFavoriteIds] = useState(new Set());
 
-  // --- NEW: useEffect to fetch favorites on page load ---
+  // ... (ALL YOUR FUNCTIONS are unchanged: useEffect, clearResults, processImageForDetection, handleFileChange, etc.) ...
+  // --- (useEffect to fetch favorites) ---
   useEffect(() => {
     const fetchUserFavorites = async () => {
       const token = localStorage.getItem('access_token');
+      if (!token) return; // Don't fetch if not logged in
       try {
         const response = await api.get('/favorites', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        // We get a list of song objects, but we just want the IDs
         const ids = response.data.map(song => song.video_id);
         setFavoriteIds(new Set(ids));
       } catch (err) {
@@ -93,15 +105,15 @@ export default function DashboardPage() {
       }
     };
     fetchUserFavorites();
-  }, []); // Empty array means this runs once when the component mounts
+  }, []);
 
-  // --- (clearResults function is unchanged) ---
+  // --- (clearResults function) ---
   const clearResults = () => {
     setError(null);
     setResult(null);
     setDetectedEmotion(null);
     setRecommendations([]);
-    setSuccessMessage(''); // Clear success message
+    setSuccessMessage('');
     
     if (photoCanvasRef.current) {
       const ctx = photoCanvasRef.current.getContext('2d');
@@ -119,10 +131,10 @@ export default function DashboardPage() {
     }
   }
   
-  // --- (processImageForDetection is unchanged) ---
+  // --- (processImageForDetection function) ---
   const processImageForDetection = async (imageBlob, targetCanvasRef, isFromFile = false) => {
     setIsLoading(true);
-    setSuccessMessage(''); // Clear success message
+    setSuccessMessage('');
     setRecommendations([]);
 
     if (isFromFile) {
@@ -172,7 +184,7 @@ export default function DashboardPage() {
     }
   };
 
-  // --- (useEffect for [result] is unchanged) ---
+  // --- (useEffect for [result]) ---
   useEffect(() => {
     if (result && result.targetCanvas && result.targetCanvas.current) {
       const { emotion, region, targetCanvas } = result;
@@ -195,7 +207,7 @@ export default function DashboardPage() {
     }
   }, [result]);
 
-  // --- (File/Webcam handlers are unchanged) ---
+  // --- (File/Webcam handlers) ---
   const handleFileChange = (event) => {
     clearResults();
     const file = event.target.files[0];
@@ -250,7 +262,7 @@ export default function DashboardPage() {
     }, 'image/jpeg');
   };
   
-  // --- (handleFetchMusic is unchanged) ---
+  // --- (handleFetchMusic) ---
   const handleFetchMusic = async () => {
     if (!detectedEmotion) {
       setError("Please detect an emotion first.");
@@ -260,7 +272,7 @@ export default function DashboardPage() {
     setIsMusicLoading(true);
     setRecommendations([]);
     setError(null);
-    setSuccessMessage(''); // Clear success message
+    setSuccessMessage('');
 
     const token = localStorage.getItem('access_token');
     
@@ -284,17 +296,15 @@ export default function DashboardPage() {
     }
   };
 
-  // --- NEW: Add to Favorites Handler ---
+  // --- (handleAddToFavorites) ---
   const handleAddToFavorites = async (song) => {
-    // Clear old messages
     setError(null);
     setSuccessMessage('');
 
-    // --- NEW: Check if already a favorite ---
     if (favoriteIds.has(song.video_id)) {
       setError(`'${song.title}' is already in your favorites.`);
       setTimeout(() => setError(''), 3000);
-      return; // Don't call the API
+      return;
     }
     
     const token = localStorage.getItem('access_token');
@@ -308,18 +318,19 @@ export default function DashboardPage() {
         },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      // Show a success message
       setSuccessMessage(`'${song.title}' was added to your favorites!`);
-      // Hide message after 3 seconds
+      // --- FIX: Update favoriteIds state immediately ---
+      setFavoriteIds(prevIds => new Set(prevIds).add(song.video_id));
       setTimeout(() => setSuccessMessage(''), 3000);
       
     } catch (err) {
       if (err.response && err.response.status === 409) {
         setError(`'${song.title}' is already in your favorites.`);
+        // --- FIX: Sync state if DB says it's already a favorite ---
+        setFavoriteIds(prevIds => new Set(prevIds).add(song.video_id));
       } else {
         setError("Failed to add favorite. Please try again.");
       }
-      // Hide error after 3 seconds
       setTimeout(() => setError(''), 3000);
     }
   };
@@ -330,11 +341,10 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <canvas ref={hiddenCanvasRef} style={{ display: 'none' }} />
 
-      {/* --- UPDATED HEADER --- */}
+      {/* --- (Header is unchanged) --- */}
       <header className="flex justify-between items-center mb-12">
         <h1 className="text-3xl font-bold text-blue-400">EmotionMusic</h1>
         <nav className="flex items-center gap-6">
-          {/* NEW: Link to Favorites Page */}
           <Link to="/favorites" className="text-lg text-gray-300 hover:text-blue-400 transition-colors">
             My Favorites
           </Link>
@@ -349,20 +359,30 @@ export default function DashboardPage() {
         </nav>
       </header>
 
-      {/* ... (Main Content, Detection Grid - all unchanged) ... */}
+      {/* --- MAIN CONTENT (WITH ANIMATION FIXES) --- */}
       <motion.div
-        variants={dashboardContainerVariants}
+        variants={dashboardContainerVariants} // The main container
         initial="hidden"
         animate="visible"
       >
-        <h2 className="text-4xl font-bold mb-6">Welcome to your Dashboard</h2>
+        {/* --- FIX: Child 1 (h2) --- */}
+        <motion.h2 
+          className="text-4xl font-bold mb-6"
+          variants={cardVariants} // It animates like a card
+        >
+          Welcome to your Dashboard
+        </motion.h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* --- FIX: Child 2 (The Grid) --- */}
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          variants={gridContainerVariants} // Use the NEW combined variant
+        >
           
-          {/* Live Detection Module */}
+          {/* --- Grid Child 2a (Live Detection) --- */}
           <motion.div
             className="bg-gray-800 p-8 rounded-xl shadow-2xl"
-            variants={cardVariants}
+            variants={cardVariants} // It animates like a card
           >
             <h3 className="text-2xl font-semibold mb-6 text-center">Live Detection</h3>
             <div className="bg-gray-700 rounded-lg overflow-hidden h-64 flex items-center justify-center">
@@ -402,10 +422,10 @@ export default function DashboardPage() {
             )}
           </motion.div>
           
-          {/* Image Upload Module */}
+          {/* --- Grid Child 2b (Image Upload) --- */}
           <motion.div
             className="bg-gray-800 p-8 rounded-xl shadow-2xl"
-            variants={cardVariants}
+            variants={cardVariants} // It animates like a card
           >
             <h3 className="text-2xl font-semibold mb-6 text-center">Upload Image</h3>
             <div className="bg-gray-700 rounded-lg overflow-hidden h-64 flex items-center justify-center">
@@ -435,9 +455,9 @@ export default function DashboardPage() {
               </div>
             )}
           </motion.div>
-        </div> {/* End of grid */}
+        </motion.div> {/* End of grid */}
 
-        {/* --- SHARED RESULTS AREA (WITH NEW LANGUAGE SELECTOR) --- */}
+        {/* --- (SHARED RESULTS AREA - Unchanged) --- */}
         <AnimatePresence>
           {error && (
             <motion.div
@@ -451,7 +471,6 @@ export default function DashboardPage() {
           )}
         </AnimatePresence>
         
-        {/* --- NEW: Success Message --- */}
         <AnimatePresence>
           {successMessage && (
             <motion.div
@@ -512,14 +531,13 @@ export default function DashboardPage() {
           )}
         </AnimatePresence>
         
-        {/* --- UPDATED RECOMMENDATIONS AREA --- */}
+        {/* --- FIX: Child 3 (Recommendations Area) --- */}
         <motion.div
           className="bg-gray-800 p-8 rounded-xl shadow-2xl mt-8"
-          variants={cardVariants}
-          >
+          variants={cardVariants} // It animates like a card
+        >
           <h3 className="text-2xl font-semibold mb-6">Your Music</h3>
           
-          {/* ... (isMusicLoading and no recommendations text is unchanged) ... */}
           <AnimatePresence>
             {isMusicLoading && (
               <motion.div className="text-center text-gray-400" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -553,7 +571,6 @@ export default function DashboardPage() {
                       <p className="text-sm text-gray-400">{song.channel_title}</p>
                     </div>
                   </a>
-                  {/* --- UPDATED: FAVORITE BUTTON --- */}
                   <motion.button
                     onClick={() => handleAddToFavorites(song)}
                     className="p-4"
@@ -561,7 +578,6 @@ export default function DashboardPage() {
                     whileTap={{ scale: 0.9 }}
                     title="Add to favorites"
                   >
-                    {/* The icon now gets the isFavorite prop */}
                     <HeartIcon isFavorite={favoriteIds.has(song.video_id)} />
                   </motion.button>
                 </motion.div>

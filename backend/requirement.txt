@@ -1,0 +1,13 @@
+Flask
+Flask-Cors
+Flask-Bcrypt
+Flask-JWT-Extended
+Flask-Mail
+itsdangerous
+mysql-connector-python
+google-api-python-client
+deepface
+tensorflow
+opencv-python
+gunicorn
+numpy

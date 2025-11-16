@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import api from "../api";
-import { useParams, useNavigate, Link } from 'react-router-dom'; // Import useParams to read the URL
+import { useParams, useNavigate, Link } from 'react-router-dom';
 
-// --- (Animation variants - same as AuthPage) ---
+// (Animation variants are unchanged)
 const formVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', duration: 0.5 } },
 };
-
 const fieldItemVariants = {
   hidden: { opacity: 0, x: -20 },
   visible: { opacity: 1, x: 0 },
 };
 
 export default function ResetPasswordPage() {
-  const { token } = useParams(); // <-- Reads the token from the URL
+  const { token } = useParams(); 
   const navigate = useNavigate();
   
   const [password, setPassword] = useState('');
@@ -26,21 +25,15 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
-
     try {
-      // Call the backend API we already built
       await api.post('/reset-password', {
         token: token,
         password: password
       });
-      
       setSuccess('Password reset successful! You can now log in.');
-      
-      // After 3 seconds, redirect to the login page
       setTimeout(() => {
-        navigate('/');
+        navigate('/login'); // Send to login page
       }, 3000);
-
     } catch (err) {
       if (err.response) {
         setError(err.response.data.error || 'An error occurred.');
@@ -88,10 +81,9 @@ export default function ResetPasswordPage() {
           </motion.button>
         </form>
 
-        {/* Link to go back to Login */}
         <div className="text-center mt-6">
           <Link to="/" className="text-gray-400 hover:text-blue-400 transition-colors">
-            Back to Login
+            Back to Home
           </Link>
         </div>
       </motion.div>

@@ -1,67 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import api from "../api";
-import { useNavigate } from 'react-router-dom';
+// --- 1. IMPORT useLocation ---
+import { useNavigate, Link, useLocation } from 'react-router-dom'; 
 
-// --- ANIMATION VARIANTS ---
-// This will animate the form container
+// (Animation variants)
 const formVariants = {
   hidden: { opacity: 0, y: 50 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring', duration: 0.5 } },
 };
-
-// This will stagger the children (form fields)
 const fieldsContainerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1 // Each child will animate 0.1s after the previous
+      staggerChildren: 0.1
     }
   }
 };
-
-// This is the animation for each individual form field
 const fieldItemVariants = {
   hidden: { opacity: 0, x: -20 },
   visible: { opacity: 1, x: 0 },
 };
 
-
 export default function AuthPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  // --- 2. CALL useLocation ---
+  const location = useLocation(); 
+
+  // --- 3. USE LOCATION STATE TO SET INITIAL MODE ---
+  // It checks if the link passed a 'mode' in its state. If not, it defaults to 'login'.
+  const [formMode, setFormMode] = useState(location.state?.mode || 'login'); 
   
-  // We now have 3 modes: 'login', 'signup', 'forgot'
-  const [formMode, setFormMode] = useState('login'); 
-  
-  // Fields for all forms
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  // States for messages
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // --- Main Login/Signup Handler ---
+  // (handleSubmit functions are unchanged)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-
     try {
       if (formMode === 'login') {
         const response = await api.post('/login', { email, password });
         api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
         login(response.data.access_token);
         navigate('/dashboard'); 
-
       } else if (formMode === 'signup') {
         await api.post('/signup', { username, email, password });
         setSuccess('Signup successful! Please log in.');
-        setFormMode('login'); // Flip to login form
+        setFormMode('login');
       }
     } catch (err) {
       if (err.response) {
@@ -71,13 +64,10 @@ export default function AuthPage() {
       }
     }
   };
-
-  // --- NEW: Forgot Password Handler ---
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-
     try {
       await api.post('/forgot-password', { email });
       setSuccess('Reset link sent! Check your email.');
@@ -90,24 +80,19 @@ export default function AuthPage() {
     }
   };
   
-  // --- This function renders the main form (Login or Signup) ---
+  // (Form rendering functions are unchanged)
   const renderMainForm = () => (
     <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-xl shadow-2xl">
       <h2 className="text-3xl font-bold text-center mb-8">
         {formMode === 'login' ? 'Welcome Back' : 'Create Account'}
       </h2>
-
-      {/* --- Message Banners --- */}
       {error && <div className="mb-4 p-3 bg-red-800 text-red-100 rounded-lg text-center">{error}</div>}
       {success && <div className="mb-4 p-3 bg-green-800 text-green-100 rounded-lg text-center">{success}</div>}
-
-      {/* --- Staggered Fields Container --- */}
       <motion.div
         variants={fieldsContainerVariants}
         initial="hidden"
         animate="visible"
       >
-        {/* Signup-only field */}
         {formMode === 'signup' && (
           <motion.div className="mb-4" variants={fieldItemVariants}>
             <label className="block text-gray-400 mb-2" htmlFor="username">Username</label>
@@ -119,8 +104,6 @@ export default function AuthPage() {
             />
           </motion.div>
         )}
-
-        {/* Email Field */}
         <motion.div className="mb-4" variants={fieldItemVariants}>
           <label className="block text-gray-400 mb-2" htmlFor="email">Email</label>
           <input
@@ -130,8 +113,6 @@ export default function AuthPage() {
             required
           />
         </motion.div>
-
-        {/* Password Field */}
         <motion.div className="mb-6" variants={fieldItemVariants}>
           <label className="block text-gray-400 mb-2" htmlFor="password">Password</label>
           <input
@@ -142,8 +123,6 @@ export default function AuthPage() {
           />
         </motion.div>
       </motion.div>
-
-      {/* Submit Button */}
       <motion.button
         type="submit"
         className="w-full p-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold text-lg"
@@ -152,8 +131,6 @@ export default function AuthPage() {
       >
         {formMode === 'login' ? 'Login' : 'Sign Up'}
       </motion.button>
-      
-      {/* --- NEW: Forgot Password Button --- */}
       {formMode === 'login' && (
         <div className="text-center mt-4">
           <button
@@ -168,17 +145,12 @@ export default function AuthPage() {
     </form>
   );
   
-  // --- NEW: This function renders the Forgot Password form ---
   const renderForgotPasswordForm = () => (
     <form onSubmit={handleForgotPassword} className="bg-gray-800 p-8 rounded-xl shadow-2xl">
       <h2 className="text-3xl font-bold text-center mb-8">Reset Password</h2>
-
-      {/* --- Message Banners --- */}
       {error && <div className="mb-4 p-3 bg-red-800 text-red-100 rounded-lg text-center">{error}</div>}
       {success && <div className="mb-4 p-3 bg-green-800 text-green-100 rounded-lg text-center">{success}</div>}
-
       <p className="text-gray-400 text-center mb-6">Enter your email and we'll send you a link to reset your password.</p>
-      
       <motion.div
         variants={fieldsContainerVariants}
         initial="hidden"
@@ -194,7 +166,6 @@ export default function AuthPage() {
           />
         </motion.div>
       </motion.div>
-      
       <motion.button
         type="submit"
         className="w-full p-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold text-lg"
@@ -206,20 +177,20 @@ export default function AuthPage() {
     </form>
   );
 
+  // --- (Return statement is unchanged) ---
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white p-4">
+      
       <motion.div
         className="w-full max-w-md"
         variants={formVariants}
         initial="hidden"
         animate="visible"
-        key={formMode} // This tells Framer Motion to re-animate when the mode changes
+        key={formMode} 
       >
-        {/* Show the correct form based on the 'formMode' state */}
         {formMode === 'forgot' ? renderForgotPasswordForm() : renderMainForm()}
-
-        {/* Toggle buttons at the bottom */}
-        <div className="text-center mt-6">
+        
+        <div className="text-center mt-6 space-x-4">
           <button 
             onClick={() => {
               setFormMode(formMode === 'login' ? 'signup' : 'login');
@@ -232,6 +203,10 @@ export default function AuthPage() {
             {formMode === 'signup' && "Already have an account? Login"}
             {formMode === 'forgot' && "Back to Login"}
           </button>
+          
+          <Link to="/" className="text-gray-400 hover:text-blue-400 transition-colors">
+            Back to Home
+          </Link>
         </div>
       </motion.div>
     </div>
