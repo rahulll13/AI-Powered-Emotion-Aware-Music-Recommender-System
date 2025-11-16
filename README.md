@@ -454,82 +454,193 @@ npm start
 
 ## 🔥Usage
 
-### Web UI
-- Fill in patient information (age, sex, blood pressure, cholesterol, etc.)
-- Submit to receive a risk score and short explanation/high-level feature contributions.
 
-### API (example)
-A sample POST request to the model endpoint:
-```bash
-curl -X POST http://localhost:5000/api/predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "age": 54,
-    "sex": 1,
-    "cp": 3,
-    "trestbps": 140,
-    "chol": 239,
-    "fbs": 0,
-    "restecg": 1,
-    "thalach": 160,
-    "exang": 0,
-    "oldpeak": 1.2,
-    "slope": 2,
-    "ca": 0,
-    "thal": 2
-  }'
-```
-Response (example):
-```json
-{
-  "risk_score": 0.72,
-  "risk_level": "High",
-  "explanation": {
-    "top_features": {
-      "age": 0.22,
-      "chol": 0.18,
-      "thalach": -0.15
+### Web UI: 
+
+- Navigate to the homepage, click "Get Started" to create an account, or "Login."
+  
+- Once on your dashboard, use the "Live Detection" or "Upload Image" modules.
+  
+- After an emotion is detected, select your language and click "Get Music" to see your results.
+
+### API (Examples)
+
+- The Flask API is fully documented within the backend/app.py file.
+  
+- All data is transferred via JSON.
+  
+  ### Example 1: User Login (Get Token)
+  
+  - This is an unprotected POST request that takes a JSON body and returns your access token.
+
+    ```bash
+    curl -X POST http://localhost:5000/api/login \
+    -H "Content-Type: application/json" \
+    -d '{
+    "email": "testuser@example.com",
+    "password": "password123"
+    }'
+    ```
+    
+  - Response (Example)
+ 
+    ```bash {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTcxNTg5MjgzNSwianRpIjoiYjA5Mj...ZlIn0.L-pA1f..."} 
+    ```
+
+
+    ### Example 2: Get Music Recommendations (Protected)
+ 
+    - This is a protected POST request. You must take the access_token from the login step and provide it as a Bearer Token in the Authorization header.
+
+    ```bash
+    curl -X POST http://localhost:5000/api/recommendations \
+    -H "Authorization: Bearer $YOUR_ACCESS_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{
+    "emotion": "happy",
+    "language": "hindi"
+    }'
+    ```
+
+    - Response (example):
+   
+      ```bash
+      [
+      {
+      "video_id": "Vm-A0e-j9cA",
+      "title": "Lutt Putt Gaya - Dunki | Shah Rukh Khan | Taapsee",
+      "channel_title": "T-Series",
+      "thumbnail_url": "https://i.ytimg.com/vi/Vm-A0e-j9cA/default.jpg"
+      },
+      {
+      "video_id": "83-gP6f5P2Q",
+      "title": "Jhoome Jo Pathaan | Shah Rukh Khan, Deepika | Vishal & Sheykhar",
+      "channel_title": "YRF",
+      "thumbnail_url": "https://i.ytimg.com/vi/83-gP6f5P2Q/default.jpg"
+      }
+      ]
+      ```
+
+      
+### Example 3: Detect Emotion (Protected, File Upload)
+
+- This request is different. It's a protected POST request, but instead of sending JSON, it sends multipart/form-data (a file). We use the -F flag instead of -d.
+
+  ```bash
+   curl -X POST http://localhost:5000/api/detect-emotion \
+  -H "Authorization: Bearer $YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/path/to/your/face.jpg"
+  ```
+
+  - Response (example):
+ 
+    ```bash
+     {
+    "emotion": "happy",
+    "region": {
+    "x": 210,
+    "y": 178,
+    "w": 394,
+    "h": 394
     }
-  }
-}
-```
-
-Note: The exact input schema and keys depend on the implementation. See `api/` or `app.py` for exact details.
+    }
+    ```
+    
 
 ## 💫Data & Model
 
-### 🌟Dataset (example)
-This project is compatible with common heart disease datasets (for example, the UCI Heart Disease dataset). Place datasets in a `data/` directory and follow the preprocessing script expectations.
 
-### ⚡Training
-A training script is expected at `scripts/train.py` or `train.py`. Typical steps:
-1. Load and split the dataset
-2. Preprocess features
-3. Train model(s)
-4. Evaluate and save the best model to `model`
+### 🌟Dataset 
 
-Example run:
-```bash
-python train_model.py 
-```
+
+- This project leverages a pre-trained, state-of-the-art model for emotion detection, which means no local training is required.
+
+### ⚡Pre-Trained Model
+
+- We use the deepface library, a lightweight Python framework for facial attribute analysis.
+  
+-  It wraps several state-of-the-art, pre-trained models for facial recognition and analysis, which are built on TensorFlow and Keras.
+
+-The emotion analysis model used by deepface was trained on large-scale, publicly available facial expression datasets (such as FER-2013, VGGFace2, and others), which contain thousands of images tagged with emotions (happy, sad, angry, neutral, etc.).
+
+### ⚡⚡ Training
+
+- The "training" step is not necessary because we are using a pre-built, production-ready model.
+
+- This decision was made to ensure high accuracy and rapid development, as training a state-of-the-art emotion classifier from scratch would require a massive dataset and significant computation time.
+
+- All the required AI models and weights are automatically downloaded by the deepface library the first time the backend server runs.
+
+### 🧠 Inference
+
+- Inference (the process of making a prediction) is handled by our Flask backend in the /api/detect-emotion endpoint.
+
+ ## The process is as follows:
+
+- 1.The React frontend sends an image (from webcam or upload) to the API.
+
+- 2.The Flask server saves the image temporarily.
+
+- 3.The backend calls the DeepFace.analyze() function on the saved image path.
+
+- 4.DeepFace.analyze() performs two actions:
+
+- 5.Face Detection: It finds the face in the image and returns its region (x, y, w, h coordinates).
+
+-6. Emotion Classification: It analyzes the facial features within that region and predicts the dominant_emotion.
+
+-7. The Flask server returns this information as a JSON object, which the frontend then uses to display the results and the bounding box.
+
 
 ## 💡Contributing
+
+
 Contributions are welcome. Typical workflow:
+
 1. Fork the repository
+   
 2. Create a feature branch: git checkout -b feature/awesome
+   
 3. Commit changes and push
+   
 4. Open a pull request describing changes and motivation
+   
 
 Please follow repository coding style and add tests for new functionality.
 
+
 ## 📜License
+
+
 This project is provided under the MIT License — see the LICENSE file for details.
 
+
 ## 📞Contact
+
 - GitHub: https://github.com/rahulll13
   
 - Email: sinha.rahul2318@gmail.com
 
+- LinkedIn: www.linkedin.com/in/rahul-kumar-sinha-bba5532ab
+  
+
 ## 💫Acknowledgements
-- This project was developed as part of the Infosys Springboard Virtual Internship Program.
-- Thanks to the open-source community for the incredible libraries that made this project possible.
+
+
+- This project was made possible by the incredible work of the open-source community and the generous free tiers provided by modern cloud hosting platforms.
+
+- Core AI: A huge thank you to the creators of the DeepFace library for making state-of-the-art facial analysis so accessible. This project is built on its foundation.
+
+- Machine Learning: This project stands on the shoulders of giants, powered by TensorFlow and OpenCV.
+
+- Frameworks: React and Flask for providing the robust frameworks for the frontend and backend.
+
+- UI & Design: Tailwind CSS and Framer Motion for making it possible to build a beautiful, modern, and animated UI.
+
+- Icons: Lucide Icons for the clean and lightweight icon set.
+
+- Deployment: Render, Railway, and Netlify for their outstanding free-tier plans that allow developers to deploy full-stack applications.
+
+- Data: The YouTube Data API for providing access to a limitless library of music.
