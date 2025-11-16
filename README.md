@@ -31,7 +31,7 @@
 ## 🎮Working demo
 - A brief video walkthrough of the application, demonstrating user registration, the prediction process, and the final XAI-powered results page.
   
-[![AI Heart Health Assistant Demo](frontend/Screeenshots/Thumbnail.png)](https://youtu.be/DWK7zz650NU?si=R6YieEA0sxtEM_CT)
+[![AI Heart Health Assistant Demo](frontend/Screeenshots/Thumbnail.png)](https://youtu.be/edyFVjffw9g)
 
 - Click the thumbnail above to watch a full video walkthrough of the application.
 
