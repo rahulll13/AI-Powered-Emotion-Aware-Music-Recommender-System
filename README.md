@@ -14,6 +14,8 @@
 
 
 - Working demo
+
+- Quick demo
   
 - Overview
   
@@ -64,6 +66,13 @@
 - Click the thumbnail below to watch a full video walkthrough of the application.
   
 [![AI Heart Health Assistant Demo](https://github.com/rahulll13/AI-Powered-Emotion-Aware-Music-Recommender-System/blob/master/backend/landing%20page.png)](https://youtu.be/edyFVjffw9g)
+
+
+## 🪄Quick Demo
+
+# A quick demo of this application is available at:-
+
+https://emotion-aware-nine-beta-78.vercel.app/
 
 
 ## 🪄Overview 
